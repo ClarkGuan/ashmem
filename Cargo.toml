@@ -1,0 +1,19 @@
+[package]
+name = "ashmem"
+version = "0.1.0"
+edition = "2021"
+build = "script/build.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+libc = "0.2"
+thiserror = "1.0"
+
+[build-dependencies]
+cc = "1.0"
+
+[profile.fast]
+inherits = "release"
+lto = true
+codegen-units = 1
