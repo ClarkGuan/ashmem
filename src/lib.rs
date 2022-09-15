@@ -82,6 +82,22 @@ impl Shm {
         unsafe { slice::from_raw_parts_mut(self.addr as *mut u8, self.size) }
     }
 
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn size(&self) -> usize {
+        self.size
+    }
+
+    pub fn as_ptr(&self) -> *const libc::c_void {
+        self.addr
+    }
+
+    pub fn as_mut_ptr(&mut self) -> *mut libc::c_void {
+        self.addr
+    }
+
     unsafe fn init(fd: libc::c_int, name: String, size: usize) -> Result<Shm> {
         let addr = libc::mmap(
             ptr::null_mut::<libc::c_void>(),
