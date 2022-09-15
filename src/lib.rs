@@ -52,6 +52,12 @@ extern "C" {
         size: libc::size_t,
     ) -> *const libc::c_char;
     fn ashmem_get_size(fd: libc::c_int) -> libc::size_t;
+    fn test();
+}
+
+#[cfg(target_os = "android")]
+pub fn test_in_rust() {
+    unsafe { test(); }
 }
 
 pub struct Shm {

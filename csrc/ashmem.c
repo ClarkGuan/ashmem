@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <string.h>
+#include <stdio.h>
 
 int ashmem_open(const char *name, size_t size) {
     int fd = open("/dev/ashmem", O_RDWR);
@@ -34,4 +35,28 @@ size_t ashmem_get_size(int fd) {
         return 0;
     }
     return size;
+}
+
+void test(void) {
+    printf("ASHMEM_SET_NAME: 0x%ul\n"
+           "ASHMEM_GET_NAME: 0x%ul\n"
+           "ASHMEM_SET_SIZE: 0x%ul\n"
+           "ASHMEM_GET_SIZE: 0x%ul\n"
+           "ASHMEM_SET_PROT_MASK: 0x%ul\n"
+           "ASHMEM_GET_PROT_MASK: 0x%ul\n"
+           "ASHMEM_PIN: 0x%ul\n"
+           "ASHMEM_UNPIN: 0x%ul\n"
+           "ASHMEM_GET_PIN_STATUS: 0x%ul\n"
+           "ASHMEM_PURGE_ALL_CACHES: 0x%ul\n",
+           ASHMEM_SET_NAME,
+           ASHMEM_GET_NAME,
+           ASHMEM_SET_SIZE,
+           ASHMEM_GET_SIZE,
+           ASHMEM_SET_PROT_MASK,
+           ASHMEM_GET_PROT_MASK,
+           ASHMEM_PIN,
+           ASHMEM_UNPIN,
+           ASHMEM_GET_PIN_STATUS,
+           ASHMEM_PURGE_ALL_CACHES);
+    fflush(stdout);
 }
