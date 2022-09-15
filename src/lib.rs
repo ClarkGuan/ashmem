@@ -1,6 +1,7 @@
 #![allow(unused_macros, dead_code)]
 
 use std::ffi::{CStr, CString, NulError};
+#[cfg(target_os = "android")]
 use std::mem::MaybeUninit;
 use std::str::Utf8Error;
 use std::{ptr, slice};
@@ -41,6 +42,7 @@ pub enum Error {
     Null(#[from] NulError),
 }
 
+#[cfg(target_os = "android")]
 #[link(name = "ashmem", kind = "static")]
 extern "C" {
     fn ashmem_open(name: *const libc::c_char, size: libc::size_t) -> libc::c_int;
@@ -53,6 +55,7 @@ extern "C" {
 }
 
 pub struct Shm {
+    #[cfg(target_os = "android")]
     fd: libc::c_int,
     addr: *mut libc::c_void,
     size: usize,
@@ -60,16 +63,31 @@ pub struct Shm {
 }
 
 impl Shm {
+    #[cfg(target_os = "android")]
     pub fn map(fd: libc::c_int) -> Result<Shm> {
         unsafe { Self::init(fd, Self::get_name(fd)?, Self::get_size(fd)) }
     }
 
     pub fn new(name: &str, size: usize) -> Result<Shm> {
         unsafe {
+            #[cfg(target_os = "android")]
             let fd = ashmem_open(CString::new(name)?.as_ptr(), size as _);
+
+            #[cfg(not(target_os = "android"))]
+            let fd = libc::shm_open(
+                CString::new(name)?.as_ptr(),
+                libc::O_RDWR | libc::O_CREAT,
+                0o666,
+            );
+
             if fd == -1 {
+                #[cfg(target_os = "android")]
                 return_errno!("ashmem_open");
+
+                #[cfg(not(target_os = "android"))]
+                return_errno!("shm_open");
             }
+
             Self::init(fd, name.to_string(), size)
         }
     }
@@ -88,6 +106,11 @@ impl Shm {
 
     pub fn size(&self) -> usize {
         self.size
+    }
+
+    #[cfg(target_os = "android")]
+    pub fn fd(&self) -> libc::c_int {
+        self.fd
     }
 
     pub fn as_ptr(&self) -> *const libc::c_void {
@@ -112,7 +135,13 @@ impl Shm {
             return_errno!("mmap");
         }
 
+        #[cfg(not(target_os = "android"))]
+        if libc::close(fd) == -1 {
+            return_errno!("close");
+        }
+
         Ok(Shm {
+            #[cfg(target_os = "android")]
             fd,
             addr,
             size,
@@ -120,6 +149,7 @@ impl Shm {
         })
     }
 
+    #[cfg(target_os = "android")]
     fn get_name(fd: libc::c_int) -> Result<String> {
         unsafe {
             let mut buf: [libc::c_char; 256] = MaybeUninit::uninit().assume_init();
@@ -129,6 +159,7 @@ impl Shm {
         }
     }
 
+    #[cfg(target_os = "android")]
     fn get_size(fd: libc::c_int) -> usize {
         unsafe { ashmem_get_size(fd) as _ }
     }
@@ -138,6 +169,8 @@ impl Drop for Shm {
     fn drop(&mut self) {
         unsafe {
             assert_ne!(libc::munmap(self.addr, self.size as _), -1);
+
+            #[cfg(target_os = "android")]
             assert_ne!(libc::close(self.fd), -1);
         }
     }
