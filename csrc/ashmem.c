@@ -38,16 +38,16 @@ size_t ashmem_get_size(int fd) {
 }
 
 void test(void) {
-    printf("ASHMEM_SET_NAME: 0x%ul\n"
-           "ASHMEM_GET_NAME: 0x%ul\n"
-           "ASHMEM_SET_SIZE: 0x%ul\n"
-           "ASHMEM_GET_SIZE: 0x%ul\n"
-           "ASHMEM_SET_PROT_MASK: 0x%ul\n"
-           "ASHMEM_GET_PROT_MASK: 0x%ul\n"
-           "ASHMEM_PIN: 0x%ul\n"
-           "ASHMEM_UNPIN: 0x%ul\n"
-           "ASHMEM_GET_PIN_STATUS: 0x%ul\n"
-           "ASHMEM_PURGE_ALL_CACHES: 0x%ul\n",
+    printf("ASHMEM_SET_NAME: %lu\n"
+           "ASHMEM_GET_NAME: %lu\n"
+           "ASHMEM_SET_SIZE: %lu\n"
+           "ASHMEM_GET_SIZE: %u\n"
+           "ASHMEM_SET_PROT_MASK: %lu\n"
+           "ASHMEM_GET_PROT_MASK: %u\n"
+           "ASHMEM_PIN: %lu\n"
+           "ASHMEM_UNPIN: %lu\n"
+           "ASHMEM_GET_PIN_STATUS: %u\n"
+           "ASHMEM_PURGE_ALL_CACHES: %u\n",
            ASHMEM_SET_NAME,
            ASHMEM_GET_NAME,
            ASHMEM_SET_SIZE,
@@ -58,5 +58,6 @@ void test(void) {
            ASHMEM_UNPIN,
            ASHMEM_GET_PIN_STATUS,
            ASHMEM_PURGE_ALL_CACHES);
+    printf("ulong: %lu, uint: %lu\n", sizeof(unsigned long), sizeof(unsigned int));
     fflush(stdout);
 }
